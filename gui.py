@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdi
 from PyQt5.QtGui import QDoubleValidator
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
+import serial
+from serial_comms import abortSequence
 # Constants for operation
 LOWEST_SP = 0.000
 HIGHEST_SP = 999.999
@@ -22,16 +24,66 @@ class CentralWidget(QWidget):
         self.connection_wdg = ConnectionWidget(self)
         self.control_wdg = ControlFields(self)
         central_layout = QVBoxLayout()
+        # Bottom buttons
+        self.verify_btn = QPushButton('Verify')
+        self.start_stop_btn = QPushButton('Start')
+        self.abort_btn = QPushButton('ABORT')
+        self.abort_btn.setStyleSheet('background-color : red; font-weight : bold')
+        # Disable buttons at start
+        self.disablesButtons()
+
+        # Botton intermediate layout
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(self.verify_btn)
+        btn_layout.addWidget(self.start_stop_btn)
+        btn_layout.addWidget(self.abort_btn)
+
+
 
         # Connect Signals and slots
         self.connection_wdg.connect_signal.connect(self.control_wdg.unlock)
         self.connection_wdg.disconnect_signal.connect(self.control_wdg.lock)
+        self.connection_wdg.connect_signal.connect(self.enableButtons)
+        self.connection_wdg.disconnect_signal.connect(self.disablesButtons)
+        self.verify_btn.clicked.connect(self.validate)
+        self.abort_btn.clicked.connect(lambda: abortSequence(self.connection_wdg.serial_comms))
+        # Add to layout
         central_layout.addWidget(self.connection_wdg)
         central_layout.addWidget(self.control_wdg)
+        central_layout.addLayout(btn_layout)
+        
         
         self.setLayout(central_layout)
-        
 
+
+    def disablesButtons(self):
+        buttons = [self.verify_btn, self.start_stop_btn, self.abort_btn]
+        for button in buttons:
+            button.setEnabled(False)
+    def enableButtons(self):
+        buttons = [self.verify_btn, self.abort_btn]
+        for button in buttons:
+            button.setEnabled(True)
+
+    def validate(self):
+        # Get data from widget
+        to_validate = {
+            'initial':'',
+            'final':'',
+            'progress':'',
+            'p_val':''
+        }
+        self.control_wdg.getValues(to_validate)
+        print(to_validate)
+        # Validation steps
+        if to_validate['progress'] == 'Step':
+            step_size = to_validate['p_val']
+            if not(step_size > 0):
+                print("NOT VALID STEP - TO BE IMPLEMENTED")
+
+            if (to_validate['initial'] < to_validate['final']):
+                n_steps = (to_validate['final'] - to_validate['initial'])/step_size
+                print(n_steps)
 
 class ConnectionWidget(QWidget):
     connect_signal = QtCore.pyqtSignal()
@@ -41,10 +93,10 @@ class ConnectionWidget(QWidget):
         super().__init__(parent)
 
         # Connection Options for the device
-        self.status = False
+        self.serial_comms = None
         self.connect_btn = QPushButton('Connect')
-        self.connect_btn.clicked.connect(self.connect)
-        self.status_label = QLabel('Connection status: {}'.format(self.status))
+        self.connect_btn.clicked.connect(self.handleConnection)
+        self.status_label = QLabel('Connection status: {}'.format('Not Connected'))
         self.status_label.setAlignment(Qt.AlignCenter)
         layout = QHBoxLayout()
         layout.addWidget(self.connect_btn)
@@ -52,19 +104,36 @@ class ConnectionWidget(QWidget):
 
         self.setLayout(layout)
 
-    def connect(self):
-        # WIP TO BE IMPLEMENTED - Just a placeholder
-        self.status = not self.status
-        if self.status:
-            # If connection successfull emit signal
-            self.connect_signal.emit()
-            text_val = 'Disconnect'
+    # If not connected: 
+    #                   1) Try/except connection
+    #                   2) If sucessfull emit signal
+    # If connected:
+    #                   1) Try/except disconnect
+    #                   2) if sucessfull emit signal
+
+    def handleConnection(self):
+        if self.serial_comms:
+            # Object is not null, disconnect routine
+            try:
+                self.serial_comms.close()
+                self.serial_comms = None
+                self.disconnect_signal.emit()
+                text_val = 'Connect'
+                text_status = 'Not Connected'
+            except:
+                raise Exception('Connection could not be ended.')
+        
         else:
-            text_val = 'Connect'
-            self.disconnect_signal.emit()
+            # Object is null, connection routine
+            try:
+                self.serial_comms = serial.Serial('/dev/ttyUSB0')
+                self.connect_signal.emit()
+                text_val = 'Disconnect'
+                text_status = 'Connected'
+            except:
+                raise Exception('Connection could not be made')
         self.connect_btn.setText(text_val)
-        self.status_label.setText('Connection status: {}'.format(self.status))
-        print("NADA NO HACE ABSOLUTAMENTE NADA")        
+        self.status_label.setText('Connection Status: {}'.format(text_status))     
         
 
 
@@ -151,6 +220,12 @@ class ControlFields(QWidget):
             item.setEnabled(True)
 
         self.locked = False
+
+    def getValues(self, value_dict):
+        value_dict['initial']=self.initial_sp_rate.value()
+        value_dict['final'] = self.final_sp_rate.value()
+        value_dict['progress']=self.steps_time_sel.currentText()
+        value_dict['p_val']=self.steps_time_val.value()
 
 
 
