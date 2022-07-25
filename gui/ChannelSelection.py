@@ -23,6 +23,9 @@ class ChannelSelection(QWidget):
 
         self.setLayout(layout)
 
+    def getChannel(self):
+        return self.channels.currentText()
+
 if __name__ == '__main__':
     app = QApplication([])
     widget = ChannelSelection()

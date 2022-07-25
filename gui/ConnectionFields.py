@@ -2,9 +2,10 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QHBoxLayout
 from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
 import serial
 import serial.tools.list_ports
-from ErrorBox import ErrorBox
+from MessageBox import ErrorBox
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
@@ -17,6 +18,9 @@ TEST_CMD = b'azi\r'
 
 class ConnectionFields(QWidget):
 
+    # Class Signals
+    connect_signal = QtCore.pyqtSignal()
+    disconnect_signal = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         
         super().__init__(parent)
@@ -69,12 +73,14 @@ class ConnectionFields(QWidget):
             if self.serial_comms:
                 self.serial_comms.close()
                 self.serial_comms = None
+                self.disconnect_signal.emit()
                 connect_btn_text = 'Connect'
                 status_label_text = 'Not Connected'
                 port_list_refresh_enable = True
             else:
                 self.serial_comms = serial.Serial(port, timeout=SERIAL_TIMEOUT)
                 self.ConnectionTest()
+                self.connect_signal.emit()
                 connect_btn_text = 'Disconnect'
                 status_label_text = 'Connected'
                 port_list_refresh_enable = False
@@ -99,6 +105,9 @@ class ConnectionFields(QWidget):
 
         else:
             raise Exception('Device did not respond to <AZI> command')
+
+    def getComms(self):
+        return self.serial_comms
 
 
 

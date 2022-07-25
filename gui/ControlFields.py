@@ -2,45 +2,65 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QComboBox, QLabel, QPushButton, QApplication, QHBoxLayout, QDoubleSpinBox, QFormLayout, QVBoxLayout
 from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtCore import Qt, pyqtSignal
+import math
+from MessageBox import WarningBox
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
 # Constants for operation
+# -> SP rate parameters
 LOWEST_SP = 0.000
 HIGHEST_SP = 999.999
 STEP_INCREMENT = 0.001
 USE_DECIMALS = 3
 SP_UNITS = '\tsl/min'
+SP_TOLERANCE = STEP_INCREMENT/10.0
 
+
+# -> Time parameters: In seconds
+MIN_TIME_STEP = 5 # s
+MAX_TIME_STEP = 120 #s
+TIME_STEP_INCREMENT = 1
+TIME_DECIMALS = 0
+TIME_UNITS = '\t s'
 
 
 class ControlFields(QWidget):
+    start_signal = pyqtSignal()
+    stop_signal = pyqtSignal()
+    abort_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         
         super().__init__(parent)
 
+        # Objects
+        self.step_route = None
+
         # Widgets
         # -> Test fields
         self.initial_sp_rate = QDoubleSpinBox()
         self.final_sp_rate = QDoubleSpinBox()
-        self.steps_time_val = QDoubleSpinBox()
-        self.steps_time_sel = QComboBox()
-        self.step_time_label = QLabel('Step Size')
+        self.step_size = QDoubleSpinBox()
+        self.time_step = QDoubleSpinBox()
+
         # -> Bot buttons
         self.verify_btn = QPushButton('Verify')
         self.start_stop_btn = QPushButton('Start')
         self.abort_btn = QPushButton('ABORT')
 
         # Init routine 
-        self.initSpinBoxes()
-        self.steps_time_sel.addItems(['Step', 'Time'])
+        self.SPBoxesConfig()
         self.abort_btn.setStyleSheet('background-color : red; font-weight : bold')
+        self.start_stop_btn.setEnabled(False)
+        self.TimeBoxConfig(self.time_step)
+        self.SPStepBoxConfig(self.step_size)
 
         # Signals and slots
-        self.steps_time_sel.activated.connect(self.selectStep)
+        self.verify_btn.clicked.connect(self.verify)
+        self.start_stop_btn.clicked.connect(self.StartStopHandler)
+        self.abort_btn.clicked.connect(lambda: self.abort_signal.emit())
 
         # Layout
         layout = QVBoxLayout()
@@ -54,8 +74,8 @@ class ControlFields(QWidget):
         
         # -> right column
         right_fields = QFormLayout()
-        right_fields.addRow('Progress', self.steps_time_sel)
-        right_fields.addRow(self.step_time_label, self.steps_time_val)
+        right_fields.addRow('Step Size', self.step_size)
+        right_fields.addRow('Time Step', self.time_step)
         form_cols.addLayout(right_fields)
 
         layout.addLayout(form_cols)
@@ -70,39 +90,106 @@ class ControlFields(QWidget):
         self.setLayout(layout)
 
         
-    def initSpinBoxes(self):
-        boxes = [self.initial_sp_rate, self.final_sp_rate, self.steps_time_val]
+    def SPBoxesConfig(self):
+        boxes = [self.initial_sp_rate, self.final_sp_rate]
         for box in boxes:
-            self.initSpinBox(box)
+            self.SPBoxConfig(box)
 
 
-    def initSpinBox(self, box):
+    def SPBoxConfig(self, box):
         box.setMinimum(LOWEST_SP)
         box.setMaximum(HIGHEST_SP)
         box.setSingleStep(STEP_INCREMENT)
         box.setDecimals(USE_DECIMALS)
         box.setSuffix(SP_UNITS)
+    
+    def SPStepBoxConfig(self,box):
+        box.setMinimum(STEP_INCREMENT)
+        box.setMaximum(HIGHEST_SP)
+        box.setSingleStep(STEP_INCREMENT)
+        box.setDecimals(USE_DECIMALS)
+        box.setSuffix(SP_UNITS)
 
-    def TimeSpinBox(self,box):
-        box.setMaximum(1)
-        box.setMaximum(999)
-        box.setSingleStep(1)
-        box.setDecimals(0)
-        box.setSuffix("\t min")
+    def TimeBoxConfig(self,box):
+        box.setMinimum(MIN_TIME_STEP)
+        box.setMaximum(MAX_TIME_STEP)
+        box.setSingleStep(TIME_STEP_INCREMENT)
+        box.setDecimals(TIME_DECIMALS)
+        box.setSuffix(TIME_UNITS)
 
-    def selectStep(self):
-        selection = self.steps_time_sel.currentText()
+    def getFieldsValues(self):
+        ret_dict = {
+            'initial':self.initial_sp_rate.value(),
+            'final':self.final_sp_rate.value(),
+            'sp_step':self.step_size.value(),
+            'time_step':self.time_step.value()
+        }
+        return ret_dict
 
-        # Clear Values
-        self.steps_time_val.cleanText()
+    def colorSpin(self, spin, color='#f86e6c'):
+        spin.setStyleSheet('background-color : {};'.format(color))
 
-        if selection == 'Step':
-            text_label = 'Step Size'
-            self.initSpinBox(self.steps_time_val)
+    def verify(self):
+        values = self.getFieldsValues()
+        
+        delta_sp = values['final'] - values['initial']
+        f_steps = delta_sp/values['sp_step'] # Needed steps
+        n_steps = math.floor(f_steps) # Complete steps 
+        last_flag = False
+
+        # Check if Initial and Final SP are over SP_TOLERANCE
+        if (math.isclose(delta_sp, 0.0, rel_tol = SP_TOLERANCE, abs_tol = 0.0)):
+            self.colorSpin(self.initial_sp_rate)
+            self.colorSpin(self.final_sp_rate)
+            warning_msg = WarningBox('Initial and Final SP rates are too close, less than tolerance: {}'.format(SP_TOLERANCE), self)
+            warning_msg.exec_()
+            self.colorSpin(self.initial_sp_rate, color='#FFFFFF')
+            self.colorSpin(self.final_sp_rate, color='#FFFFFF')
+            return
+
+        # Check if required steps are factible
+        last_step = 0.0
+        if not (math.isclose(f_steps, n_steps, rel_tol=SP_TOLERANCE, abs_tol=0.0)):
+            last_step = delta_sp - n_steps*values['sp_step']
+            if not(math.isclose(last_step, STEP_INCREMENT, rel_tol=SP_TOLERANCE, abs_tol=0.0)):
+                self.colorSpin(self.step_size)
+                warning_msg = WarningBox('<b>Last step for run is not factible with the given step size</b>. Last Step needed {:.3f}, Step size needed {:.3f}'.format(last_step, values['sp_step']))
+                warning_msg.exec_()
+                self.colorSpin(self.step_size,color='#FFFFFF')
+                return
+            last_flag = True
+        
+        # If everything checks, enable start button
+        self.start_stop_btn.setEnabled(True)
+
+        self.step_route = {
+            'initial':values['initial'],
+            'final':values['final'],
+            'delta_sp':delta_sp,
+            'n_steps':n_steps,
+            'step_size':values['sp_step'],
+            'last_flag':last_flag,
+            'last_step':last_step,
+            'time_step':values['time_step']
+        }
+
+    def StartStopHandler(self):
+        # Check button status
+        btn_status = self.start_stop_btn.text()
+
+        if btn_status == 'Start':
+            btn_text = 'Stop'
+            self.start_signal.emit()
 
         else:
-            text_label = 'Test Duration'
-            self.TimeSpinBox(self.steps_time_val)
+            btn_text = 'Start'
+            self.stop_signal.emit()
+
+        self.start_stop_btn.setText(btn_text)
+
+    def getRoute(self):
+        return self.step_route
+
 
 if __name__ == '__main__':
     app = QApplication([])

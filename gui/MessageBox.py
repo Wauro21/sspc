@@ -16,6 +16,15 @@ class ErrorBox(QMessageBox):
         self.setWindowTitle('Error!')
 
 
+class WarningBox(QMessageBox):
+    def __init__(self, warning, parent=None):
+        super().__init__(parent)
+        self.setIcon(QMessageBox.Warning)
+        self.setText('<b>Warning:</b>')
+        self.setInformativeText(warning)
+        self.setWindowTitle('Warning!')
+
+
 if __name__ == '__main__':
     app = QApplication([])
     widget = ErrorBox('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla porta est interdum, vulputate metus et, bibendum dui. Nunc fermentum tincidunt mi nec semper')
