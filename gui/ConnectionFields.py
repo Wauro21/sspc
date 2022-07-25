@@ -71,17 +71,22 @@ class ConnectionFields(QWidget):
                 self.serial_comms = None
                 connect_btn_text = 'Connect'
                 status_label_text = 'Not Connected'
+                port_list_refresh_enable = True
             else:
                 self.serial_comms = serial.Serial(port, timeout=SERIAL_TIMEOUT)
                 self.ConnectionTest()
                 connect_btn_text = 'Disconnect'
                 status_label_text = 'Connected'
+                port_list_refresh_enable = False
             self.connect_btn.setText(connect_btn_text)
             self.status_label.setText(CONNECTION_STATUS_LABEL.format(status_label_text))
+            self.serial_ports.setEnabled(port_list_refresh_enable)
+            self.refresh_btn.setEnabled(port_list_refresh_enable)
         except Exception as e:
-            print('EXCEPCION')
             self.serial_comms.close()
             self.serial_comms = None
+            self.serial_ports.setEnabled(True)
+            self.refresh_btn.setEnabled(True)
             show_error = ErrorBox(e, self)
             show_error.exec_()
 
