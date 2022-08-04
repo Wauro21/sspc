@@ -35,12 +35,12 @@ if __name__ == '__main__':
     #getPorts()
 
     serial_comms = serial.Serial('/dev/ttyUSB0') # timeout=5.0
-    #serial_comms.write(b'azi\r')
-    #response = serial_comms.readline()
-    #response= response.decode('utf-8')
-    #print(response.strip())
+    serial_comms.write(b'azi\r')
+    response = serial_comms.readline()
+    response= response.decode('utf-8')
+    print(response.strip())
     #serial_comms.close()
 
     #setValue(serial_comms, 8,1,1.01)
-    abortSequence(serial_comms)
+    #abortSequence(serial_comms)
     serial_comms.close()

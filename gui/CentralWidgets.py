@@ -4,13 +4,11 @@ from PyQt5.QtCore import QObject, QThread
 from ConnectionFields import ConnectionFields
 from ChannelSelection import ChannelSelection
 from ControlFields import ControlFields
-from dispatcher import Dispatcher
+from Dispatcher import Dispatcher
+from MessageBox import InformationBox
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
-
-# Constants
-ABORT_CMD = 'az.{channel}P1=0.000\r'
 
 
 class CentralWidget(QWidget):
@@ -44,6 +42,7 @@ class CentralWidget(QWidget):
         self.connection_wdg.disconnect_signal.connect(self.disconnectLock)
         self.control_wdg.start_signal.connect(self.runTest)
         self.control_wdg.abort_signal.connect(self.abortSequence)
+        self.control_wdg.stop_signal.connect(self.stopSequence)
 
         # Layout
         layout = QVBoxLayout()
@@ -64,6 +63,10 @@ class CentralWidget(QWidget):
 
 
     def runTest(self):
+        print("STARTING A THREAD")
+        # Lock Control fields during Thread operation
+        self.lockForRun()
+
         # Create a thread
         self.Thread = QThread()
         
@@ -79,7 +82,8 @@ class CentralWidget(QWidget):
         self.route = self.control_wdg.getRoute()
 
         # -> Generate dispatcher ctrl
-        self.dispatcher_ctrl = {'allowed':True}
+        self.dispatcher_ctrl = {'abort':False}
+        self.dispatcher_ctrl['stop'] = False
 
         self.Dispatcher = Dispatcher(self.comms, channel, self.route, self.dispatcher_ctrl)
 
@@ -91,37 +95,54 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Thread.quit)
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
-        
-
+        self.Thread.finished.connect(self.lockForRun)
+        #self.Thread.finished.connect(self.control_wdg.StartStopHandler)
         # Start Dispatcher on thread
-        self.Thread.start()
-
+        self.Thread.start()    
+    
     def abortSequence(self):
 
         # Stop any running threads
         if self.Thread and self.Thread.isRunning():
             
             # Disable thread ability to send cmds to device
-            self.dispatcher_ctrl['allowed'] = False
-            
-            # Set thread timer to zero
-            self.route['time_step'] = 0.0
+            self.dispatcher_ctrl['abort'] = True
 
             # Wait for thread to end
             self.Thread.quit()
             self.Thread.wait()
 
-            # Send stop commands to all channels
-            self.abortCMD()
+            # Clean before ending
+            self.dispatcher_ctrl = None
+            self.route = None
+
+        msg = InformationBox('Abort sequence ended. All channels were set to zero')
+        msg.exec_()
+
+
+    
+    def lockForRun(self):
+        # Lock channel 
+        self.channels_wdg.setEnabled(not self.channels_wdg.isEnabled())
+
+        # Lock fields
+        self.control_wdg.lockFields()
+
+
+    def stopSequence(self):
+        if self.Thread and self.Thread.isRunning():
+            
+            # Disable thread ability to send cmds to device
+            self.dispatcher_ctrl['stop'] = True
+
+            # Wait for thread to end
+            self.Thread.quit()
+            self.Thread.wait()
+            print('THREAD ENDED')
 
             # Clean before ending
             self.dispatcher_ctrl = None
             self.route = None
-            
-    def abortCMD(self):
-        for i in range(1,5):
-            channel = i*2
-            self.comms.write(ABORT_CMD.format(channel=channel).encode('utf_8'))
 
 
 

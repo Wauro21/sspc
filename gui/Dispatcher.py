@@ -15,6 +15,7 @@ TIME_UNIT = 0.5 # Wait 0.5 s in every sleep cycle
 
 class Dispatcher(QObject):
     finished = pyqtSignal()
+    progress = pyqtSignal()
 
     def __init__(self, serial_comms, channel, step_route, dispatcher_ctrl):
         super().__init__()
@@ -32,7 +33,9 @@ class Dispatcher(QObject):
                 if(self.dispatcher_ctrl['abort']):
                     self.abortRoutine()
                 # In case of stop, the last SP is mantained
-                return 
+                break
+            self.progress.emit()
+        self.finished.emit()
 
 
     def toDevice(self, next_step):

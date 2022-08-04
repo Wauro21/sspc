@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 import serial
 import serial.tools.list_ports
-from MessageBox import ErrorBox
+from MessageBox import ErrorBox, WarningBox, InformationBox
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
@@ -63,11 +63,24 @@ class ConnectionFields(QWidget):
         for port, _, _ in sorted(ports):
             show_ports.append(port)
 
-        # Add ports to combobox
-        self.serial_ports.addItems(show_ports)
+        # If no ports found disable connect button
+        if(len(show_ports) == 0):
+            self.connect_btn.setEnabled(False)
+            return
+        else:
+            # Add ports to combobox
+            self.serial_ports.addItems(show_ports)
+            # Enable connect button
+            self.connect_btn.setEnabled(True)
+
 
     def ConnectionHandler(self):
         port = self.serial_ports.currentText()
+        if not(port):
+            # No port is selected
+            warning = WarningBox('No port was found. Try refreshing')
+            warning.exec_()
+            return 
 
         try:
             if self.serial_comms:

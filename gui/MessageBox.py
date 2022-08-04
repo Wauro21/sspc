@@ -24,6 +24,14 @@ class WarningBox(QMessageBox):
         self.setInformativeText(warning)
         self.setWindowTitle('Warning!')
 
+class InformationBox(QMessageBox):
+    def __init__(self, info, parent=None):
+        super().__init__(parent)
+        self.setIcon(QMessageBox.Information)
+        self.setText('<b>Information:</b>')
+        self.setInformativeText(info)
+        self.setWindowTitle('Information!')
+
 
 if __name__ == '__main__':
     app = QApplication([])
