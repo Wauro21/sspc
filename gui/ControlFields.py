@@ -160,18 +160,19 @@ class ControlFields(QWidget):
         f_steps = delta_sp/steps # Needed steps
         n_steps = math.floor(f_steps) # Complete steps 
         last_flag = False
+        print("n_steps {}, f_steps {}".format(n_steps, f_steps))
 
 
         # Check if required steps are factible
         last_step = 0.0
         if not (math.isclose(f_steps, n_steps, rel_tol=SP_TOLERANCE, abs_tol=0.0)):
             last_step = delta_sp - n_steps*steps
-            if not(math.isclose(last_step, STEP_INCREMENT, rel_tol=SP_TOLERANCE, abs_tol=0.0)):
-                self.colorSpin(self.step_size)
-                warning_msg = WarningBox('<b>Last step for run is not factible with the given step size</b>. Last Step needed {:.3f}, Step size needed {:.3f}'.format(last_step, values['sp_step']))
-                warning_msg.exec_()
-                self.colorSpin(self.step_size,color='')
-                return
+            # if not(math.isclose(last_step, STEP_INCREMENT, rel_tol=SP_TOLERANCE, abs_tol=0.0)):
+            #     self.colorSpin(self.step_size)
+            #     warning_msg = WarningBox('<b>Last step for run is not factible with the given step size</b>. Last Step needed {:.3f}, Step size needed {:.3f}'.format(last_step, values['sp_step']))
+            #     warning_msg.exec_()
+            #     self.colorSpin(self.step_size,color='')
+            #     return
             last_flag = True
 
         # Generate steps for thread
