@@ -9,7 +9,7 @@ from MessageBox import InformationBox
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
-
+ABORT_CMD = 'az.{channel}P1=0.000\r'
 
 class CentralWidget(QWidget):
     def __init__(self, parent=None):
@@ -54,10 +54,12 @@ class CentralWidget(QWidget):
         self.setLayout(layout)
 
     def disconnectLock(self):
+        self.comms = None
         self.channels_wdg.setEnabled(False)
         self.control_wdg.setEnabled(False)
 
     def connectUnlock(self):
+        self.comms = self.connection_wdg.getComms()
         self.channels_wdg.setEnabled(True)
         self.control_wdg.setEnabled(True)
 
@@ -72,8 +74,6 @@ class CentralWidget(QWidget):
         
 
         # Create a Dispatcher
-        # -> Get serial_comms 
-        self.comms = self.connection_wdg.getComms()
         
         # -> Get Channel
         channel = int(self.channels_wdg.getChannel())*2
@@ -115,6 +115,12 @@ class CentralWidget(QWidget):
             # Clean before ending
             self.dispatcher_ctrl = None
             self.route = None
+        
+        else:
+            # No thread is running
+            self.abortRoutine()
+
+            
 
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
@@ -144,7 +150,11 @@ class CentralWidget(QWidget):
             self.dispatcher_ctrl = None
             self.route = None
 
-
+    def abortRoutine(self):
+        # Set all channels to zero
+        for i in range(1,5):
+            CMD = ABORT_CMD.format(channel=2*i).encode('utf_8')
+            self.comms.write(CMD)
 
 
 if __name__ == '__main__':
