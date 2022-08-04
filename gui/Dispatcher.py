@@ -60,7 +60,7 @@ class Dispatcher(QObject):
 
     def abortRoutine(self):
         # Set all channels to zero
-        for i in range(4):
+        for i in range(1,5):
             CMD = ABORT_CMD.format(channel=2*i).encode('utf_8')
             self.serial_comms.write(CMD)
 
