@@ -160,7 +160,7 @@ class ControlFields(QWidget):
         f_steps = delta_sp/steps # Needed steps
         n_steps = math.floor(f_steps) # Complete steps 
         last_flag = False
-        print("n_steps {}, f_steps {}".format(n_steps, f_steps))
+        print("delta {}, n_steps {}, steps {}".format(delta_sp,n_steps, steps))
 
 
         # Check if required steps are factible
@@ -188,7 +188,10 @@ class ControlFields(QWidget):
 
         # 3- Add last step if necessary
         if(last_flag):
-            step_list.append(last_step)
+            i_step += last_step
+            step_list.append(i_step)
+
+        print(step_list)
         
 
         self.step_route = {
