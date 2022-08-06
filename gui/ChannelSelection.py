@@ -10,6 +10,8 @@ __author__ = 'maurio.aravena@sansano.usm.cl'
 class ChannelSelection(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        # objects
+        self.status = True
 
         # Widgets
         self.channels = QComboBox()
@@ -25,6 +27,10 @@ class ChannelSelection(QWidget):
 
     def getChannel(self):
         return self.channels.currentText()
+
+    def lockChannels(self):
+        self.status = not self.status
+        self.setEnabled(self.status)
 
 if __name__ == '__main__':
     app = QApplication([])

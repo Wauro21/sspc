@@ -210,24 +210,27 @@ class ControlFields(QWidget):
         self.start_stop_btn.setEnabled(True)
 
     def StartStopHandler(self):
-        print("HANDLER")
         # Check button status
         btn_status = self.start_stop_btn.text()
-        print("BUTTON IS {}".format(btn_status))
-
+        
         if btn_status == 'Start':
             btn_text = 'Stop'
             self.verify_btn.setEnabled(False)
             self.start_signal.emit()
-            print("STARTING")
+
         else:
             btn_text = 'Start'
             self.lockFields()
             self.verify_btn.setEnabled(True)
             self.stop_signal.emit()
-            print("ENDING")
 
         self.start_stop_btn.setText(btn_text)
+
+
+    def stopHandler(self):
+        self.verify_btn.setEnabled(True)
+        self.start_stop_btn.setText('Start')
+        self.stop_signal.emit()
 
     def getRoute(self):
         return self.step_route
@@ -237,6 +240,7 @@ class ControlFields(QWidget):
 
         for item in self.fields:
             item.setEnabled(self.status)
+
 
 
     def progressHandler(self):

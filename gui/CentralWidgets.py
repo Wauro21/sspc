@@ -95,8 +95,7 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Thread.quit)
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
-        self.Thread.finished.connect(self.lockForRun)
-        #self.Thread.finished.connect(self.control_wdg.StartStopHandler)
+        self.Thread.finished.connect(self.control_wdg.stopHandler)
         # Start Dispatcher on thread
         self.Thread.start()    
     
@@ -129,7 +128,7 @@ class CentralWidget(QWidget):
     
     def lockForRun(self):
         # Lock channel 
-        self.channels_wdg.setEnabled(not self.channels_wdg.isEnabled())
+        self.channels_wdg.lockChannels()
 
         # Lock fields
         self.control_wdg.lockFields()
@@ -149,6 +148,7 @@ class CentralWidget(QWidget):
             # Clean before ending
             self.dispatcher_ctrl = None
             self.route = None
+        self.lockForRun()
 
     def abortRoutine(self):
         # Set all channels to zero
