@@ -100,7 +100,6 @@ class CentralWidget(QWidget):
         self.Thread.start()    
     
     def abortSequence(self):
-
         # Stop any running threads
         if self.Thread and self.Thread.isRunning():
             
@@ -120,6 +119,8 @@ class CentralWidget(QWidget):
             self.abortRoutine()
 
             
+        # Clear Thread
+        self.Thread = None
 
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
@@ -148,6 +149,10 @@ class CentralWidget(QWidget):
             # Clean before ending
             self.dispatcher_ctrl = None
             self.route = None
+        
+        # Clear Thread
+        self.Thread = None
+        
         self.lockForRun()
 
     def abortRoutine(self):
