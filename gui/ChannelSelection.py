@@ -1,13 +1,15 @@
 # Selection of the channel of operation
 
 import sys
-from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QFormLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QFormLayout, QHBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
 class ChannelSelection(QWidget):
+    manual_signal = pyqtSignal()
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         # objects
@@ -15,13 +17,24 @@ class ChannelSelection(QWidget):
 
         # Widgets
         self.channels = QComboBox()
+        self.warmup = QPushButton("Manual Warmup")
 
         # Init routines
         self.channels.addItems(['1','2','3','4'])
 
-        # Layout 
-        layout = QFormLayout()
-        layout.addRow('Select Channel: \t', self.channels)
+        # Signals and slots
+        self.warmup.clicked.connect(self.manualWarmup)
+
+        # Layout
+        layout = QHBoxLayout()
+        # Channel selection 
+        channel_layout = QFormLayout()
+        channel_layout.addRow('Select Channel: \t', self.channels)
+        
+        # Widget Layout
+        layout.addLayout(channel_layout)
+        layout.addWidget(self.warmup)
+
 
         self.setLayout(layout)
 
@@ -31,6 +44,10 @@ class ChannelSelection(QWidget):
     def lockChannels(self):
         self.status = not self.status
         self.setEnabled(self.status)
+
+    def manualWarmup(self):
+        # Indicate that manual processing is being performed
+        self.manual_signal.emit()
 
 if __name__ == '__main__':
     app = QApplication([])

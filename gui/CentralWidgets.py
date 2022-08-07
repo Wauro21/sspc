@@ -6,6 +6,8 @@ from ChannelSelection import ChannelSelection
 from ControlFields import ControlFields
 from Dispatcher import Dispatcher
 from MessageBox import InformationBox
+from ManualWidget import ManualControl
+
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
@@ -43,6 +45,7 @@ class CentralWidget(QWidget):
         self.control_wdg.start_signal.connect(self.runTest)
         self.control_wdg.abort_signal.connect(self.abortSequence)
         self.control_wdg.stop_signal.connect(self.stopSequence)
+        self.channels_wdg.manual_signal.connect(self.manualRoutine)
 
         # Layout
         layout = QVBoxLayout()
@@ -159,6 +162,21 @@ class CentralWidget(QWidget):
         # Unlock fields
         self.lockForRun()
         self.control_wdg.stopHandler()
+
+    def manualRoutine(self):
+        # Generate Window
+        channel = int(self.channels_wdg.getChannel())*2
+        manual_window = ManualControl(self.comms, channel, self)
+
+        # Lock automatic control fields 
+        self.lockForRun()
+
+        # Signals 
+        manual_window.finished.connect(self.lockForRun)
+
+        # Start Window
+        manual_window.exec_()
+
 
 
 if __name__ == '__main__':
