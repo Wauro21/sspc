@@ -71,6 +71,9 @@ class CentralWidget(QWidget):
         # Lock Control fields during Thread operation
         self.lockForRun()
 
+        # Reset progress bar
+        self.resetBar()
+
         # Create a thread
         self.Thread = QThread()
         
@@ -98,6 +101,7 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
         self.Thread.finished.connect(self.ThreadEnd)
+        self.Dispatcher.progress.connect(self.updateBar)
         # Start Dispatcher on thread
         self.Thread.start()    
     
@@ -126,6 +130,9 @@ class CentralWidget(QWidget):
 
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
+
+        # Restore progress bar
+        self.resetBar()
     
     def lockForRun(self):
         # Lock channel 
@@ -152,6 +159,9 @@ class CentralWidget(QWidget):
         # Clear Thread
         self.Thread = None
 
+        # Reset progress bar
+        self.resetBar()
+
     def abortRoutine(self):
         # Set all channels to zero
         for i in range(1,5):
@@ -177,6 +187,12 @@ class CentralWidget(QWidget):
         # Start Window
         manual_window.exec_()
 
+    def updateBar(self, val):
+        self.control_wdg.progressHandler(val)
+
+
+    def resetBar(self):
+        self.control_wdg.resetBar()
 
 
 if __name__ == '__main__':
