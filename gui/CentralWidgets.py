@@ -65,7 +65,6 @@ class CentralWidget(QWidget):
 
 
     def runTest(self):
-        print("STARTING A THREAD")
         # Lock Control fields during Thread operation
         self.lockForRun()
 
@@ -95,7 +94,6 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Thread.quit)
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
-        self.Thread.finished.connect(self.control_wdg.stopHandler)
         # Start Dispatcher on thread
         self.Thread.start()    
     
@@ -144,7 +142,6 @@ class CentralWidget(QWidget):
             # Wait for thread to end
             self.Thread.quit()
             self.Thread.wait()
-            print('THREAD ENDED')
 
             # Clean before ending
             self.dispatcher_ctrl = None
@@ -153,6 +150,7 @@ class CentralWidget(QWidget):
         # Clear Thread
         self.Thread = None
         
+        # Unlock controls fields and channel selection
         self.lockForRun()
 
     def abortRoutine(self):

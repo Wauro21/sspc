@@ -39,6 +39,7 @@ class ControlFields(QWidget):
         # Objects
         self.step_route = None
         self.status = True
+        self.verifed = True
 
         # Widgets
         # -> Test fields
@@ -70,6 +71,11 @@ class ControlFields(QWidget):
         self.verify_btn.clicked.connect(self.verify)
         self.start_stop_btn.clicked.connect(self.StartStopHandler)
         self.abort_btn.clicked.connect(lambda: self.abort_signal.emit())
+        self.initial_sp_rate.valueChanged.connect(self.fieldsChanged)
+        self.final_sp_rate.valueChanged.connect(self.fieldsChanged)
+        self.step_size.valueChanged.connect(self.fieldsChanged)
+        self.time_step.valueChanged.connect(self.fieldsChanged)
+
 
         # Layout
         layout = QVBoxLayout()
@@ -141,6 +147,15 @@ class ControlFields(QWidget):
     def colorSpin(self, spin, color='#f86e6c'):
         spin.setStyleSheet('background-color : {};'.format(color))
 
+    def fieldsChanged(self):
+        # If any of the controls fields change and the last values were verified, lock everything as start
+        if(self.verifed):
+            self.verifed = not self.verifed
+            self.start_stop_btn.setEnabled(False)
+
+        else:
+            return
+
     def verify(self):
         values = self.getFieldsValues()
         
@@ -160,7 +175,6 @@ class ControlFields(QWidget):
         f_steps = delta_sp/steps # Needed steps
         n_steps = math.floor(f_steps) # Complete steps 
         last_flag = False
-        print("delta {}, n_steps {}, steps {}".format(delta_sp,n_steps, steps))
 
 
         # Check if required steps are factible
@@ -189,10 +203,7 @@ class ControlFields(QWidget):
         # 3- Add last step if necessary
         if(last_flag):
             i_step += last_step
-            step_list.append(i_step)
-
-        print(step_list)
-        
+            step_list.append(i_step)        
 
         self.step_route = {
             'initial':values['initial'],
@@ -207,6 +218,7 @@ class ControlFields(QWidget):
         }
 
         # If everything checks, enable start button
+        self.verifed = True
         self.start_stop_btn.setEnabled(True)
 
     def StartStopHandler(self):
@@ -220,7 +232,6 @@ class ControlFields(QWidget):
 
         else:
             btn_text = 'Start'
-            self.lockFields()
             self.verify_btn.setEnabled(True)
             self.stop_signal.emit()
 
