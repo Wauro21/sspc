@@ -94,6 +94,7 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Thread.quit)
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
+        self.Thread.finished.connect(self.ThreadEnd)
         # Start Dispatcher on thread
         self.Thread.start()    
     
@@ -122,13 +123,6 @@ class CentralWidget(QWidget):
 
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
-
-        # Unlock channel and control fields
-        self.lockForRun()
-
-        # Restore button status
-        self.control_wdg.stopHandler()
-
     
     def lockForRun(self):
         # Lock channel 
@@ -154,15 +148,17 @@ class CentralWidget(QWidget):
         
         # Clear Thread
         self.Thread = None
-        
-        # Unlock controls fields and channel selection
-        self.lockForRun()
 
     def abortRoutine(self):
         # Set all channels to zero
         for i in range(1,5):
             CMD = ABORT_CMD.format(channel=2*i).encode('utf_8')
             self.comms.write(CMD)
+
+    def ThreadEnd(self):
+        # Unlock fields
+        self.lockForRun()
+        self.control_wdg.stopHandler()
 
 
 if __name__ == '__main__':
