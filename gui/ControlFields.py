@@ -241,7 +241,6 @@ class ControlFields(QWidget):
     def stopHandler(self):
         self.verify_btn.setEnabled(True)
         self.start_stop_btn.setText('Start')
-        self.stop_signal.emit()
 
     def getRoute(self):
         return self.step_route

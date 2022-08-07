@@ -123,6 +123,11 @@ class CentralWidget(QWidget):
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
 
+        # Unlock channel and control fields
+        self.lockForRun()
+
+        # Restore button status
+        self.control_wdg.stopHandler()
 
     
     def lockForRun(self):
