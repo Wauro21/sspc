@@ -14,6 +14,9 @@ STEP_INCREMENT = 0.001
 USE_DECIMALS = 3
 SP_UNITS = '\tsl/min'
 
+# Label Display
+LBL_DISPLAY = '{value:.3f}'+SP_UNITS
+
 
 class ManualControl(QDialog):
     manual_signal = pyqtSignal()
@@ -68,9 +71,17 @@ class ManualControl(QDialog):
 
 
     def toDevice(self):
+
+        # Send cmd
         sp = self.sp.value()
         cmd = WRITE_CMD.format(channel=self.channel, sp_value=sp).encode('utf_8')
         self.comms.write(cmd)
+
+        # Read response and update label
+        device_response = self.comms.readline().decode('utf_8')
+        device_response = device_response.split(',')
+        to_display = LBL_DISPLAY.format(value=float(device_response[4]))
+        self.reported_label.setText(to_display)
 
 
     def abortSequence(self):
@@ -78,6 +89,9 @@ class ManualControl(QDialog):
         for i in range(1,5):
             CMD = ABORT_CMD.format(channel=2*i).encode('utf_8')
             self.comms.write(CMD)
+
+        to_display = LBL_DISPLAY.format(value=0)
+        self.reported_label.setText(to_display)
         
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()        
