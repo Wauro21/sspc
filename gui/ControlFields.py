@@ -253,9 +253,11 @@ class ControlFields(QWidget):
 
 
 
-    def progressHandler(self):
-        print(self.step_route)
+    def progressHandler(self, val):
+        self.progress.setValue(val)
 
+    def resetBar(self):
+        self.progress.reset()
 
 if __name__ == '__main__':
     app = QApplication([])

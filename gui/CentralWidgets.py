@@ -6,6 +6,8 @@ from ChannelSelection import ChannelSelection
 from ControlFields import ControlFields
 from Dispatcher import Dispatcher
 from MessageBox import InformationBox
+from ManualWidget import ManualControl
+
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
@@ -43,6 +45,7 @@ class CentralWidget(QWidget):
         self.control_wdg.start_signal.connect(self.runTest)
         self.control_wdg.abort_signal.connect(self.abortSequence)
         self.control_wdg.stop_signal.connect(self.stopSequence)
+        self.channels_wdg.manual_signal.connect(self.manualRoutine)
 
         # Layout
         layout = QVBoxLayout()
@@ -67,6 +70,9 @@ class CentralWidget(QWidget):
     def runTest(self):
         # Lock Control fields during Thread operation
         self.lockForRun()
+
+        # Reset progress bar
+        self.resetBar()
 
         # Create a thread
         self.Thread = QThread()
@@ -94,6 +100,8 @@ class CentralWidget(QWidget):
         self.Dispatcher.finished.connect(self.Thread.quit)
         self.Dispatcher.finished.connect(self.Dispatcher.deleteLater)
         self.Thread.finished.connect(self.Thread.deleteLater)
+        self.Thread.finished.connect(self.ThreadEnd)
+        self.Dispatcher.progress.connect(self.updateBar)
         # Start Dispatcher on thread
         self.Thread.start()    
     
@@ -123,12 +131,8 @@ class CentralWidget(QWidget):
         msg = InformationBox('Abort sequence ended. All channels were set to zero')
         msg.exec_()
 
-        # Unlock channel and control fields
-        self.lockForRun()
-
-        # Restore button status
-        self.control_wdg.stopHandler()
-
+        # Restore progress bar
+        self.resetBar()
     
     def lockForRun(self):
         # Lock channel 
@@ -154,15 +158,41 @@ class CentralWidget(QWidget):
         
         # Clear Thread
         self.Thread = None
-        
-        # Unlock controls fields and channel selection
-        self.lockForRun()
+
+        # Reset progress bar
+        self.resetBar()
 
     def abortRoutine(self):
         # Set all channels to zero
         for i in range(1,5):
             CMD = ABORT_CMD.format(channel=2*i).encode('utf_8')
             self.comms.write(CMD)
+
+    def ThreadEnd(self):
+        # Unlock fields
+        self.lockForRun()
+        self.control_wdg.stopHandler()
+
+    def manualRoutine(self):
+        # Generate Window
+        channel = int(self.channels_wdg.getChannel())*2
+        manual_window = ManualControl(self.comms, channel, self)
+
+        # Lock automatic control fields 
+        self.lockForRun()
+
+        # Signals 
+        manual_window.finished.connect(self.lockForRun)
+
+        # Start Window
+        manual_window.exec_()
+
+    def updateBar(self, val):
+        self.control_wdg.progressHandler(val)
+
+
+    def resetBar(self):
+        self.control_wdg.resetBar()
 
 
 if __name__ == '__main__':
