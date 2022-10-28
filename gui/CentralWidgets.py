@@ -7,6 +7,7 @@ from ControlFields import ControlFields
 from Dispatcher import Dispatcher
 from MessageBox import InformationBox
 from ManualWidget import ManualControl
+import os
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
@@ -197,6 +198,8 @@ class CentralWidget(QWidget):
 
 if __name__ == '__main__':
     app = QApplication([])
+    if os.name == 'nt':
+        app.setStyle('Fusion')
     widget = CentralWidget()
     widget.show()
     sys.exit(app.exec_())
