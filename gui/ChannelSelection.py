@@ -1,14 +1,14 @@
 # Selection of the channel of operation
 
 import sys
-from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QFormLayout, QHBoxLayout
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide2.QtWidgets import QWidget, QComboBox, QPushButton, QApplication, QFormLayout, QHBoxLayout
+from PySide2.QtCore import Signal
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 
 class ChannelSelection(QWidget):
-    manual_signal = pyqtSignal()
+    manual_signal = Signal()
     
     def __init__(self, parent=None):
         super().__init__(parent)

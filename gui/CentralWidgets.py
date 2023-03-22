@@ -1,6 +1,6 @@
 import sys 
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
-from PyQt5.QtCore import QObject, QThread
+from PySide2.QtWidgets import QApplication, QWidget, QVBoxLayout
+from PySide2.QtCore import QObject, QThread
 from ConnectionFields import ConnectionFields
 from ChannelSelection import ChannelSelection
 from ControlFields import ControlFields
@@ -54,6 +54,7 @@ class CentralWidget(QWidget):
         layout.addWidget(self.connection_wdg)
         layout.addWidget(self.channels_wdg)
         layout.addWidget(self.control_wdg)
+        layout.addStretch()
 
         self.setLayout(layout)
 

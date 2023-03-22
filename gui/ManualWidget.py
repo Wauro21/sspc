@@ -1,6 +1,6 @@
 import sys 
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QFormLayout, QDialog, QVBoxLayout, QHBoxLayout, QDoubleSpinBox
-from PyQt5.QtCore import pyqtSignal
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QFormLayout, QDialog, QVBoxLayout, QHBoxLayout, QDoubleSpinBox
+from PySide2.QtCore import Signal
 import serial
 from MessageBox import InformationBox
 
@@ -19,8 +19,8 @@ LBL_DISPLAY = '{value:.3f}'+SP_UNITS
 
 
 class ManualControl(QDialog):
-    manual_signal = pyqtSignal()
-    auto_signal = pyqtSignal()
+    manual_signal = Signal()
+    auto_signal = Signal()
 
     def __init__(self, comms, channel , parent=None):
         super().__init__(parent)

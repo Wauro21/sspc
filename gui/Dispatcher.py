@@ -1,8 +1,6 @@
 # A thread-worker that dispatches the commands used by the flowmeter
 import sys
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
-import serial
+from PySide2.QtCore import QObject, Signal
 import time
 import math
 
@@ -14,8 +12,8 @@ ABORT_CMD = 'az.{channel}P1=0.000\r'
 TIME_UNIT = 0.5 # Wait 0.5 s in every sleep cycle
 
 class Dispatcher(QObject):
-    finished = pyqtSignal()
-    progress = pyqtSignal(float)
+    finished = Signal()
+    progress = Signal(float)
 
     def __init__(self, serial_comms, channel, step_route, dispatcher_ctrl):
         super().__init__()

@@ -1,11 +1,10 @@
 # The required control fields to setup the serial connection
 import sys
-from PyQt5.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QHBoxLayout
-from PyQt5.QtCore import Qt
-from PyQt5 import QtCore
+from PySide2.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplication, QHBoxLayout
+from PySide2.QtCore import Qt, Signal
 import serial
 import serial.tools.list_ports
-from MessageBox import ErrorBox, WarningBox, InformationBox
+from MessageBox import ErrorBox, WarningBox
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
@@ -19,8 +18,8 @@ TEST_CMD = b'azi\r'
 class ConnectionFields(QWidget):
 
     # Class Signals
-    connect_signal = QtCore.pyqtSignal()
-    disconnect_signal = QtCore.pyqtSignal()
+    connect_signal = Signal()
+    disconnect_signal = Signal()
     def __init__(self, parent=None):
         
         super().__init__(parent)

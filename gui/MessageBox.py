@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PySide2.QtWidgets import QApplication, QMessageBox
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'

@@ -1,8 +1,7 @@
 # Fields to control the test
 import sys
-from PyQt5.QtWidgets import QWidget, QComboBox, QLabel, QPushButton, QApplication, QHBoxLayout, QDoubleSpinBox, QFormLayout, QVBoxLayout, QProgressBar
-from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide2.QtWidgets import QWidget, QPushButton, QApplication, QHBoxLayout, QDoubleSpinBox, QFormLayout, QVBoxLayout, QProgressBar
+from PySide2.QtCore import Signal
 import math
 import numpy as np
 from MessageBox import WarningBox
@@ -28,9 +27,9 @@ TIME_UNITS = '\t s'
 
 
 class ControlFields(QWidget):
-    start_signal = pyqtSignal()
-    stop_signal = pyqtSignal()
-    abort_signal = pyqtSignal()
+    start_signal = Signal()
+    stop_signal = Signal()
+    abort_signal = Signal()
 
     def __init__(self, parent=None):
         
