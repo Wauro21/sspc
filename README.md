@@ -1,4 +1,4 @@
-# **FSSC** - Flowmeter Simple Serial Controller 
+# **SSPC** - Serial Set Point Controller 
 
 A simple serial controller for Brooks series 0250 Power Supplies, Readout and Set Point controllers. The controller allows to implement routines of SP-rate on flowmeters. 
 
@@ -11,7 +11,7 @@ A simple serial controller for Brooks series 0250 Power Supplies, Readout and Se
 **Diclaimer: Not related in any way with official Brooks software**
 
 ## Index 
-- [**FSSC** - Flowmeter Simple Serial Controller](#fssc---flowmeter-simple-serial-controller)
+- [**SSPC** - Serial Set Point Controller](#sspc---serial-set-point-controller)
   - [Index](#index)
   - [](#)
 
