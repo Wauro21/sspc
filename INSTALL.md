@@ -27,7 +27,7 @@ In the release section you will find three files, a zip-file corresponding to th
 
 Download SSPC.zip and unzip it where you want it. Inside there will be a SSPC folder, inside are all the files needed to run the program (including all the LICENSES from third party libraries and SSPC itself). Just search for the executable: SSPC.exe and the program should launch.
 
-![example-full-installation-windows]()
+![example-full-installation-windows](rsrcs/github-gifs/example_windows_install.gif)
 
 You can put the folder anywhere you want, and then generate a desktop shortcut of `SSPC.exe`.
 
