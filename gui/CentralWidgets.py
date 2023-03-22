@@ -1,12 +1,12 @@
 import sys 
 from PySide2.QtWidgets import QApplication, QWidget, QVBoxLayout
 from PySide2.QtCore import QObject, QThread
-from ConnectionFields import ConnectionFields
-from ChannelSelection import ChannelSelection
-from ControlFields import ControlFields
-from Dispatcher import Dispatcher
-from MessageBox import InformationBox
-from ManualWidget import ManualControl
+from gui.ConnectionFields import ConnectionFields
+from gui.ChannelSelection import ChannelSelection
+from gui.ControlFields import ControlFields
+from core.Dispatcher import Dispatcher
+from gui.MessageBox import InformationBox
+from gui.ManualWidget import ManualControl
 import os
 
 __version__ ='0.1'

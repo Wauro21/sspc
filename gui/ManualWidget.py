@@ -2,7 +2,7 @@ import sys
 from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QFormLayout, QDialog, QVBoxLayout, QHBoxLayout, QDoubleSpinBox
 from PySide2.QtCore import Signal
 import serial
-from MessageBox import InformationBox
+from gui.MessageBox import InformationBox
 
 WRITE_CMD = 'AZ.{channel}P1={sp_value:.3f}\r'
 ABORT_CMD = 'az.{channel}P1=0.000\r'

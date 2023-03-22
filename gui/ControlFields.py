@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QWidget, QPushButton, QApplication, QHBoxLayout, Q
 from PySide2.QtCore import Signal
 import math
 import numpy as np
-from MessageBox import WarningBox
+from gui.MessageBox import WarningBox
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
 

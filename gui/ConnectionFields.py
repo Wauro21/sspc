@@ -4,7 +4,7 @@ from PySide2.QtWidgets import QWidget, QComboBox, QPushButton, QLabel, QApplicat
 from PySide2.QtCore import Qt, Signal
 import serial
 import serial.tools.list_ports
-from MessageBox import ErrorBox, WarningBox
+from gui.MessageBox import ErrorBox, WarningBox
 
 __version__ ='0.1'
 __author__ = 'maurio.aravena@sansano.usm.cl'
