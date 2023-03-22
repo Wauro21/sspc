@@ -93,4 +93,4 @@ After installing the dependencies, you should be able to run the code. You can t
 ```[bash]
 $ python SSPC.py
 ```
-![install-success]()
+![install-success](rsrcs/github-gifs/example-cli-demo.gif)
