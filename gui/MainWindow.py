@@ -16,7 +16,7 @@ class SSP(QMainWindow):
         # init routines
         self.setWindowTitle('SSPC - Serial Set Point Controller')
         self.setCentralWidget(self.SPD_Widget)
-        self.setWindowIcon(QtGui.QIcon('rsrcs/icon.png'))
+        self.setWindowIcon(QtGui.QIcon('rsrcs/FSSC_icon.png'))
 
         # signals and slots
 
