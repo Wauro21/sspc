@@ -13,6 +13,20 @@ A simple serial controller for Brooks series 0250 Power Supplies, Readout and Se
 ## Index 
 - [**SSPC** - Serial Set Point Controller](#sspc---serial-set-point-controller)
   - [Index](#index)
-  - [](#)
+  - [Installation](#installation)
+  - [Example use](#example-use)
+  - [LICENSE](#license)
 
-## 
+## Installation
+
+Instructions to install either from packages (Windows) or sources (Linux, Windows, OSX) and the requirements are provided on [INSTALL.md](INSTALL.md)
+
+## Example use
+
+**Releasing soon**
+
+## LICENSE
+
+**The SSPC software is under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.en.html) license.**
+
+All dependencies included in the compiled version of the software distribuited on the release page of the repository include a copy of their license according to their own terms. The licenses of the dependencies can be checked on [DEPENDENCY_LICENSES](/DEPENDENCY_LICENSES/).
